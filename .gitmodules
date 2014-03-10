@@ -1,0 +1,3 @@
+[submodule "engines/provider_engine"]
+	path = engines/provider_engine
+	url = git@github.com:cloudspace/provider_engine.git
