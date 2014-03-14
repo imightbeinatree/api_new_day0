@@ -37,8 +37,10 @@ module NewDay0
       ENV["#{provider_name.upcase}_KEY"] = creds["app_id"]
       ENV["#{provider_name.upcase}_SECRET"] = creds["app_secret"]
     end
+    
 
     # PERMISSIONS SCOPE FOR FACEBOOK - login partial, engine.rb
     ENV["FACEBOOK_SCOPE"] = 'email, offline_access, user_birthday, read_friendlists'
+    ENV["TWITTER_SCOPE"] = '{}'
   end
 end

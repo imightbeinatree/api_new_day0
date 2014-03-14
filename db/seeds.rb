@@ -14,7 +14,7 @@ d.save
 #
 # BEGIN PROVIDERS
 #
-provider_attrs = {
+provider_attrs_array = [{
   name: "facebook",
   display_name: "facebook",
   site: "https://graph.facebook.com",
@@ -24,15 +24,26 @@ provider_attrs = {
   check_valid_url: "/me",
   header_format: "OAuth %s",
   oauth_version: 2
-}
+},
 
-if !Provider::Provider.where("name = ?", "facebook").first.present?
-  p = Provider::Provider.new(provider_attrs)
-  if p.save!
-    puts "facebook provider created" if Rails.env != 'test'
-  else
-    puts "ERROR creating facebook provider" if Rails.env != 'test'
-  end
+{
+  name:'twitter',
+  display_name:'twitter',
+  site:'https://api.twitter.com',
+  authorize_url:'/oauth/authenticate',
+  check_valid_url:'/1/account/verify_credentials.json',
+  oauth_version:1
+}]
+
+provider_attrs_array.each do |provider_attrs|
+	if !Provider::Provider.where("name = ?", provider_attrs[:name]).first.present?
+	  p = Provider::Provider.new(provider_attrs)
+	  if p.save!
+	    puts "#{provider_attrs[:name]} provider created" if Rails.env != 'test'
+	  else
+	    puts "ERROR creating #{provider_attrs[:name]} provider" if Rails.env != 'test'
+	  end
+	end
 end
 #
 # END PROVIDERS

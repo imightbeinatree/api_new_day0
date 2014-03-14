@@ -58,6 +58,7 @@ gem "cancan"
 gem "rolify"
 gem "omniauth"
 gem "omniauth-facebook"
+gem 'omniauth-twitter'
 gem "haml"
 gem "paperclip"
 group :test do

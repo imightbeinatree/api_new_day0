@@ -381,6 +381,7 @@ DEPENDENCIES
   metric_fu
   omniauth
   omniauth-facebook
+  omniauth-twitter
   paperclip
   pg
   provider!

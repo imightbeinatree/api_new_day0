@@ -3,6 +3,28 @@ class Devise::AjaxRegistrationsController < DeviseController
   respond_to :json
   prepend_before_filter :require_no_authentication, only: [ :new, :create, :cancel ]
 
+  def manage_doorkeeper_token(resource, application_id)
+      # Create an OAuth2 Access token to be rendered
+      token = Doorkeeper::AccessToken.where(
+        application_id: application_id,
+        resource_owner_id: resource.id,
+        revoked_at: nil
+      ).order(:created_at).last
+
+      if !token || token.expired?
+        token = Doorkeeper::AccessToken.create!(
+          application_id: 1,
+          resource_owner_id: resource.id
+        )
+      end
+
+      token
+  end
+
+
+  def get_token(resource, application_id)
+    Doorkeeper::AccessToken.where(application_id: application_id,resource_owner_id: resource.id,revoked_at: nil).order(:created_at).last.token
+  end
 
   # GET /resource/sign_up
   def new
@@ -22,23 +44,11 @@ class Devise::AjaxRegistrationsController < DeviseController
 Rails.logger.info "resource built #{resource.inspect}"
     if resource.save
 
-      # Create an OAuth2 Access token to be rendered
-      token = Doorkeeper::AccessToken.where(
-        application_id: 1,
-        resource_owner_id: resource.id,
-        revoked_at: nil
-      ).order(:created_at).last
-
-      if !token || token.expired?
-        Doorkeeper::AccessToken.create!(
-          application_id: 1,
-          resource_owner_id: resource.id
-        )
-      end
+      token = manage_doorkeeper_token(resource, 1)
 
       if resource.active_for_authentication?
         sign_up(resource_name, resource)
-        render :json=> resource.as_json().merge("token" => Doorkeeper::AccessToken.where(application_id: 1,resource_owner_id: resource.id,revoked_at: nil).order(:created_at).last.token), :status=>201
+        render :json=> resource.as_json().merge("token" => get_token(resource), :status=>201
       else
         expire_data_after_sign_in!
         render :json=> resource.as_json(), :status=>202
